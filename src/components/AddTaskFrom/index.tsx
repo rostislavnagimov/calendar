@@ -3,9 +3,11 @@
 import {useState} from 'react'
 
 const AddTaskForm = ({
-  onAddTask
+  onAddTask,
+  visibilityCallback
 }: {
   onAddTask: (task: {title: string; date: string}) => void
+  visibilityCallback: () => void
 }) => {
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
@@ -19,15 +21,18 @@ const AddTaskForm = ({
     }
 
     onAddTask({title, date})
-    setTitle('')
-    setDate('')
+    visibilityCallback()
   }
 
   return (
-    <div className="fixed inset-0 backdrop-blur-[2px] backdrop-saturate-0 flex justify-center items-center">
+    <div
+      className="fixed inset-0 backdrop-blur-[2px] backdrop-saturate-0 flex justify-center items-center"
+      onClick={() => visibilityCallback()}
+    >
       <form
         className="bg-black border border-[#b9f] w-2/5 shadow-md rounded px-8 pt-6 pb-8 mb-4"
         onSubmit={handleSubmit}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4">
           <label

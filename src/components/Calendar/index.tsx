@@ -2,7 +2,7 @@
 
 import React, {useState, useEffect} from 'react'
 
-const Calendar: React.FC<CalendarProps> = ({callback}) => {
+const Calendar: React.FC<CalendarProps> = ({callback, tasks}) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
@@ -10,7 +10,7 @@ const Calendar: React.FC<CalendarProps> = ({callback}) => {
     if (selectedDate) {
       callback(selectedDate)
     }
-  }, [selectedDate])
+  }, [selectedDate, callback])
 
   const startOfMonth = new Date(
     currentDate.getFullYear(),
@@ -49,6 +49,17 @@ const Calendar: React.FC<CalendarProps> = ({callback}) => {
   const days = Array.from({length: daysInMonth}, (_, i) => i + 1)
   const emptyDays = Array.from({length: startDay}, () => null)
 
+  const getTasksForDate = (day: number) => {
+    const dateStr = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    )
+      .toISOString()
+      .split('T')[0]
+    return tasks[dateStr] || 0
+  }
+
   return (
     <div className="p-4 border border-[#b9f] rounded-lg m-2 select-none">
       <div className="flex justify-between items-center mb-4">
@@ -81,20 +92,28 @@ const Calendar: React.FC<CalendarProps> = ({callback}) => {
         {emptyDays.map((_, index) => (
           <div key={`empty-${index}`} />
         ))}
-        {days.map((day) => (
-          <div
-            key={day}
-            className={`p-2 border rounded cursor-pointer ${
-              selectedDate?.getDate() === day &&
-              selectedDate?.getMonth() === currentDate.getMonth()
-                ? 'bg-[#b9f] text-black border-[#b9f]'
-                : 'hover:bg-gray-700'
-            }`}
-            onClick={() => handleDateClick(day)}
-          >
-            {day}
-          </div>
-        ))}
+        {days.map((day) => {
+          const taskCount = getTasksForDate(day)
+          return (
+            <div
+              key={day}
+              className={`p-2 h-[58px] border rounded cursor-pointer ${
+                selectedDate?.getDate() === day &&
+                selectedDate?.getMonth() === currentDate.getMonth()
+                  ? 'bg-[#b9f] text-black border-[#b9f]'
+                  : 'hover:bg-gray-700'
+              }`}
+              onClick={() => handleDateClick(day)}
+            >
+              {day}
+              {taskCount > 0 && (
+                <div className="text-xs text-gray-500">
+                  {taskCount} {taskCount === 1 ? 'задача' : 'задачи'}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -104,4 +123,5 @@ export default Calendar
 
 interface CalendarProps {
   callback: (date: Date) => void
+  tasks: {[key: string]: number}
 }
