@@ -1,5 +1,5 @@
-import Image from 'next/image'
-
-export default function Home() {
+const Home = () => {
   return <div>Here will be calendar</div>
 }
+
+export default Home
